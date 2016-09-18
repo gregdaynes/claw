@@ -1,0 +1,7 @@
+endpoint-location: ./endpoints
+
+default:
+  url: http://0.0.0.0:3000
+
+production:
+  url: https://google.com

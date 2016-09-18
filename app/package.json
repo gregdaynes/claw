@@ -1,0 +1,22 @@
+{
+  "name": "claw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "claw": "NODE_ENV=development node ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "3.5.0",
+    "eslint-config-airbnb-base": "7.1.0",
+    "eslint-plugin-import": "1.15.0",
+    "eslint_d": "4.0.1"
+  },
+  "dependencies": {
+    "js-yaml": "3.6.1"
+  }
+}
