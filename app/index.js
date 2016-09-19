@@ -4,6 +4,7 @@
  * ------------------------------------- */
 const yml = require('js-yaml');
 const fs = require('fs');
+const request = require('request');
 
 /* Get commandline arguments
  * ------------------------------------- */
@@ -36,19 +37,51 @@ inputs.forEach(input => {
 /* Replace file references in input file
  * ------------------------------------- */
 const fileReferences = matchFileReferences(requestFile, /(?:\[)([a-zA-Z\-\.]+)(?:\])/g);
-console.log(fileReferences);
 
-// console.log(yml.safeLoad(requestFile));
+// chunk file references into group: filename | json path
+const fileReferenceChunks = [];
+if (!fileReferenceChunks.length % 2) {
+    for (let i = 0; i < fileReferences.length; i += 2) {
+        fileReferenceChunks.push(fileReferences.slice(i, i + 2));
+    }
+}
+
+// each reference group should load file + json data.
+fileReferenceChunks.map(file => {
+    const referenceFilePath = `${config.endpointLocation}/${file[0]}`;
+    const referenceFileContents = yml.safeLoad(fs.readFileSync(referenceFilePath, 'utf-8'));
+
+    // find referenced property in external file
+    const resource = file[1].split('.');
+    const includedProperty = resource.reduce((acc, part) => {
+        if (!acc) return acc;
+
+        acc = acc[`${part}`];
+        return acc;
+    }, referenceFileContents);
+
+    // replace property refrence with property content
+    requestFile = requestFile.replace(`[${file[0]}][${file[1]}]`, includedProperty);
+});
 
 
+/* Make request
+ * ------------------------------------- */
+requestFile = yml.safeLoad(requestFile);
 
+const params = {
+    method: requestFile.method,
+    uri: requestFile.endpoint,
+    headers: requestFile.request.headers,
+    body: requestFile.request.body.values || null,
+    json: true,
+};
+request(params, (err, response, body) => {
+    console.log(params);
+    if (err) throw new Error(err);
 
-
-
-
-
-
-
+    console.log(body);
+});
 
 
 
